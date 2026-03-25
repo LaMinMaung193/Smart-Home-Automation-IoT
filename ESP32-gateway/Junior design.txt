@@ -1,0 +1,15 @@
+Junior design
+
+broker.hivemq.com
+
+LaMin_PC_Client
+
+8884
+
+check ssl
+
+smarthome/plc1/status
+
+smarthome/plc1/control
+
+https://www.hivemq.com/demos/websocket-client/

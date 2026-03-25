@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Home Industrial Dashboard</title>
+
+  <link rel="stylesheet" href="style.css">
+
+  <!-- Load MQTT first -->
+  <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+</head>
+
+<body>
+
+<h1>🏭 Smart Home Industrial Gateway</h1>
+
+<div class="card">
+  <h2>System Status</h2>
+  <p>PLC: <span id="plcStatus">Offline</span></p>
+  <p>Mode: <span id="modeStatus">-</span></p>
+  <p>Fire: <span id="fireStatus">-</span></p>
+  <p>Temperature: <span id="tempStatus">-</span> °C</p>
+</div>
+
+<div class="card">
+  <h2>Sensors</h2>
+  <p>PIR: <span id="pirStatus">-</span></p>
+  <p>LDR: <span id="ldrStatus">-</span></p>
+  <p>Door: <span id="doorStatus">-</span></p>
+</div>
+
+<div class="card">
+  <h2>Control</h2>
+  <button onclick="setMode(0)">AUTO</button>
+  <button onclick="setMode(1)">MANUAL</button>
+  <br><br>
+
+  <button onclick="controlDevice('light', true)">Light ON</button>
+  <button onclick="controlDevice('light', false)">Light OFF</button>
+  <br><br>
+
+  <button onclick="controlDevice('fan', true)">Fan ON</button>
+  <button onclick="controlDevice('fan', false)">Fan OFF</button>
+  <br><br>
+
+  <button onclick="controlDevice('buzzer', true)">Buzzer ON</button>
+  <button onclick="controlDevice('buzzer', false)">Buzzer OFF</button>
+</div>
+
+<!-- Load your script AFTER everything -->
+<script src="script.js"></script>
+
+</body>
+</html>
