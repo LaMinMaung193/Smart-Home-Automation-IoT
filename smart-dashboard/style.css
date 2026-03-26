@@ -5,25 +5,62 @@ body {
   text-align: center;
 }
 
-h1 {
-  color: #00e5ff;
+/* HEADER */
+.header {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  padding: 20px 30px;
 }
 
+.header h1 {
+  margin: 0;
+  color: #00eaff;
+  text-align: center;
+}
+
+.header .right {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* MODERN LOGOUT BUTTON */
+.logout-btn {
+  background: transparent;
+  color: #00eaff;
+  border: 1px solid rgba(0, 234, 255, 0.4);
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.25s ease;
+  backdrop-filter: blur(4px);
+}
+
+.logout-btn:hover {
+  background: rgba(0, 234, 255, 0.1);
+  border-color: #00eaff;
+  box-shadow: 0 0 8px rgba(0,234,255,0.6);
+}
+
+/* GRID */
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 15px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
   padding: 20px;
 }
 
+/* CARDS */
 .card {
-  background: #1a1f2b;
+  background: #1f2937;
   padding: 20px;
   border-radius: 12px;
+  color: white;
   box-shadow: 0 0 10px rgba(0,255,255,0.1);
 }
 
-/* Buttons */
+/* BUTTONS */
 button {
   padding: 10px;
   margin: 5px;
@@ -43,6 +80,7 @@ button:hover {
   background: #00c853 !important;
 }
 
+/* ALERTS */
 .alert {
   background: red;
   color: white;

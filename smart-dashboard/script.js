@@ -1,66 +1,76 @@
-const client = mqtt.connect("wss://broker.hivemq.com:8884/mqtt");
+// 🔐 AUTH CHECK
+const token = localStorage.getItem("token");
+if (!token) {
+  window.location.href = "login.html";
+}
 
-let tempData = [];
-let ldrData = [];
+// 📡 MQTT
+const client = mqtt.connect("wss://broker.hivemq.com:8884/mqtt");
 
 const tempChart = new Chart(document.getElementById("tempChart"), {
   type: 'line',
-  data: { labels: [], datasets: [{ label: 'Temp', data: [] }] }
+  data: {
+    labels: [],
+    datasets: [{ label: 'Temperature (°C)', data: [] }]
+  }
 });
 
 const ldrChart = new Chart(document.getElementById("ldrChart"), {
   type: 'line',
-  data: { labels: [], datasets: [{ label: 'LDR', data: [] }] }
+  data: {
+    labels: [],
+    datasets: [{ label: 'LDR', data: [] }]
+  }
 });
 
+function setStatus(id, text, isOn = null) {
+  const el = document.getElementById(id);
+  if (!el) return;
+
+  el.innerText = text;
+
+  if (isOn !== null) {
+    el.style.color = isOn ? "lime" : "red";
+  }
+}
+
 client.on('connect', () => {
-  console.log("Connected");
+  console.log("MQTT Connected");
   client.subscribe("smarthome/plc1/status");
 });
 
 client.on('message', (topic, message) => {
-
   const data = JSON.parse(message.toString());
 
-  // STATUS
-  document.getElementById("plcStatus").innerText = data.plc_online ? "Online" : "Offline";
-  document.getElementById("modeStatus").innerText = data.mode === 0 ? "AUTO" : "MANUAL";
-  document.getElementById("tempStatus").innerText = data.temperature;
+  setStatus("plcStatus", data.plc_online ? "🟢 Online" : "🔴 Offline", data.plc_online);
+  setStatus("modeStatus", data.mode === 0 ? "AUTO" : "MANUAL");
+  setStatus("tempStatus", data.temperature + " °C");
 
-  document.getElementById("pirStatus").innerText = data.pir;
-  document.getElementById("ldrStatus").innerText = data.ldr;
-  document.getElementById("doorStatus").innerText = data.door;
+  setStatus("pirStatus", data.pir ? "Motion" : "No Motion", data.pir);
+  setStatus("ldrStatus", data.ldr ? "Bright" : "Dark", data.ldr);
+  setStatus("doorStatus", data.door ? "Open" : "Closed", data.door);
 
-  document.getElementById("lightStatus").innerText = data.light;
-  document.getElementById("fanStatus").innerText = data.fan;
-  document.getElementById("buzzerStatus").innerText = data.buzzer;
+  setStatus("lightStatus", data.light ? "🟢 ON" : "🔴 OFF", data.light);
+  setStatus("fanStatus", data.fan ? "🟢 ON" : "🔴 OFF", data.fan);
+  setStatus("buzzerStatus", data.buzzer ? "🟢 ON" : "🔴 OFF", data.buzzer);
 
-  // BUTTON FEEDBACK
-  toggle("lightOnBtn", data.light);
-  toggle("fanOnBtn", data.fan);
-  toggle("buzzerOnBtn", data.buzzer);
-
-  // FIRE ALERT
   const fireDiv = document.getElementById("fireAlert");
   const alarm = document.getElementById("alarmSound");
 
   if (data.fire === 1) {
     fireDiv.classList.remove("hidden");
-    alarm.play();
+    if (alarm.paused) {
+      alarm.play().catch(() => {});
+    }
   } else {
     fireDiv.classList.add("hidden");
     alarm.pause();
+    alarm.currentTime = 0;
   }
 
-  // PLC OFFLINE
-  const offlineDiv = document.getElementById("offlineAlert");
-  if (!data.plc_online) {
-    offlineDiv.classList.remove("hidden");
-  } else {
-    offlineDiv.classList.add("hidden");
-  }
+  document.getElementById("offlineAlert")
+    .classList.toggle("hidden", data.plc_online);
 
-  // CHART UPDATE
   let time = new Date().toLocaleTimeString();
 
   tempChart.data.labels.push(time);
@@ -80,14 +90,22 @@ client.on('message', (topic, message) => {
   ldrChart.update();
 });
 
-function toggle(id, state) {
-  document.getElementById(id).classList.toggle("active", state);
+function controlDevice(device, state) {
+  fetch("http://localhost:3000/control", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer " + token
+    },
+    body: JSON.stringify({ device, state })
+  });
 }
 
 function setMode(mode) {
-  client.publish("smarthome/plc1/control", JSON.stringify({ mode }));
+  controlDevice("mode", mode);
 }
 
-function controlDevice(device, state) {
-  client.publish("smarthome/plc1/control", JSON.stringify({ [device]: state }));
+function logout() {
+  localStorage.removeItem("token");
+  window.location.href = "login.html";
 }

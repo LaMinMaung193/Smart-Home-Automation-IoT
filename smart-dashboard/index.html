@@ -9,16 +9,28 @@
 
 <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+if (!localStorage.getItem("token")) {
+  window.location.href = "login.html";
+}
+</script>
+
 </head>
 
 <body>
 
-<h1>🏭 Industrial SCADA Dashboard</h1>
+<div class="header">
+  <div></div>
 
-<!-- FIRE ALERT -->
+  <h1>🏭 Home Automation IoT Dashboard</h1>
+
+  <div class="right">
+    <button class="logout-btn" onclick="logout()">Logout</button>
+  </div>
+</div>
+
 <div id="fireAlert" class="alert hidden">🔥 FIRE DETECTED 🔥</div>
-
-<!-- PLC OFFLINE -->
 <div id="offlineAlert" class="offline hidden">⚠️ PLC OFFLINE</div>
 
 <div class="grid">
@@ -27,7 +39,7 @@
   <h2>System</h2>
   <p>PLC: <span id="plcStatus">-</span></p>
   <p>Mode: <span id="modeStatus">-</span></p>
-  <p>Temp: <span id="tempStatus">-</span> °C</p>
+  <p>Temp: <span id="tempStatus">-</span></p>
 </div>
 
 <div class="card">
@@ -45,26 +57,26 @@
 </div>
 
 <div class="card">
+  <h2>Temperature Trend</h2>
+  <canvas id="tempChart"></canvas>
+</div>
+
+<div class="card">
   <h2>Control</h2>
 
-  <button id="autoBtn" onclick="setMode(0)">AUTO</button>
-  <button id="manualBtn" onclick="setMode(1)">MANUAL</button>
+  <button onclick="setMode(0)">AUTO</button>
+  <button onclick="setMode(1)">MANUAL</button>
 
   <hr>
 
   <button id="lightOnBtn" onclick="controlDevice('light', true)">Light ON</button>
-  <button id="lightOffBtn" onclick="controlDevice('light', false)">Light OFF</button>
+  <button onclick="controlDevice('light', false)">Light OFF</button>
 
   <button id="fanOnBtn" onclick="controlDevice('fan', true)">Fan ON</button>
-  <button id="fanOffBtn" onclick="controlDevice('fan', false)">Fan OFF</button>
+  <button onclick="controlDevice('fan', false)">Fan OFF</button>
 
   <button id="buzzerOnBtn" onclick="controlDevice('buzzer', true)">Buzzer ON</button>
-  <button id="buzzerOffBtn" onclick="controlDevice('buzzer', false)">Buzzer OFF</button>
-</div>
-
-<div class="card">
-  <h2>Temperature Trend</h2>
-  <canvas id="tempChart"></canvas>
+  <button onclick="controlDevice('buzzer', false)">Buzzer OFF</button>
 </div>
 
 <div class="card">
@@ -74,7 +86,6 @@
 
 </div>
 
-<!-- Alarm sound -->
 <audio id="alarmSound" src="https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg"></audio>
 
 <script src="script.js"></script>
