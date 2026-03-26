@@ -80,7 +80,7 @@ async function login() {
   btn.innerText = "Logging in...";
   btn.disabled = true;
 
-  const res = await fetch("http://localhost:3000/login", {
+  const res = await fetch("https://smart-home-automation-iot.onrender.com/login", {
     method: "POST",
     headers: {"Content-Type": "application/json"},
     body: JSON.stringify({

@@ -91,7 +91,7 @@ client.on('message', (topic, message) => {
 });
 
 function controlDevice(device, state) {
-  fetch("http://localhost:3000/control", {
+  fetch("https://smart-home-automation-iot.onrender.com/control", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
