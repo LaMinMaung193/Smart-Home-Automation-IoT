@@ -168,9 +168,9 @@ void readPLC() {
 
     if (!plc_online) {
       temperature_raw = 280;
-      pir = 1;
+      pir = 0;
       ldr = 0;
-      door = 1;
+      door = 0;
       fire_flag = 0;
     }
   }
