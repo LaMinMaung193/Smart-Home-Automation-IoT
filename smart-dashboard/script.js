@@ -7,6 +7,28 @@ if (!token) {
 // 📡 MQTT
 const client = mqtt.connect("wss://broker.hivemq.com:8884/mqtt");
 
+
+// 🔊 Enable sound on first user interaction (ALL DEVICES FIX)
+function unlockAudio() {
+  const alarm = document.getElementById("alarmSound");
+  if (!alarm) return;
+
+  alarm.muted = false;
+
+  alarm.play().then(() => {
+    alarm.pause();
+    alarm.currentTime = 0;
+    console.log("🔊 Sound enabled");
+  }).catch((e) => {
+    console.log("Audio unlock failed:", e);
+  });
+}
+
+// Support ALL devices (Laptop + Android + iPhone + iPad)
+document.body.addEventListener("click", unlockAudio, { once: true });
+document.body.addEventListener("touchstart", unlockAudio, { once: true });
+document.body.addEventListener("keydown", unlockAudio, { once: true });
+
 const tempChart = new Chart(document.getElementById("tempChart"), {
   type: 'line',
   data: {
@@ -47,8 +69,9 @@ client.on('message', (topic, message) => {
   setStatus("tempStatus", data.temperature + " °C");
 
   setStatus("pirStatus", data.pir ? "Motion" : "No Motion", data.pir);
-  setStatus("ldrStatus", data.ldr ? "Bright" : "Dark", data.ldr);
-  setStatus("doorStatus", data.door ? "Open" : "Closed", data.door);
+  setStatus("ldrStatus", data.ldr ? "Dark" : "Light Detected", data.ldr);
+  setStatus("doorStatus", data.door ? "Closed" : "Open", data.door);
+  setStatus("smokeStatus", data.smoke ? "Smoke Detected" : "Clear", !data.smoke);
 
   setStatus("lightStatus", data.light ? "🟢 ON" : "🔴 OFF", data.light);
   setStatus("fanStatus", data.fan ? "🟢 ON" : "🔴 OFF", data.fan);
@@ -66,6 +89,14 @@ client.on('message', (topic, message) => {
     fireDiv.classList.add("hidden");
     alarm.pause();
     alarm.currentTime = 0;
+  }
+  
+  const smokeDiv = document.getElementById("smokeAlert");
+
+  if (data.smoke === 1) {
+    smokeDiv.classList.remove("hidden");
+  } else {
+    smokeDiv.classList.add("hidden");
   }
 
   document.getElementById("offlineAlert")

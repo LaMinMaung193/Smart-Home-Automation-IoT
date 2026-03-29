@@ -23,7 +23,7 @@ if (!localStorage.getItem("token")) {
 <div class="header">
   <div></div>
 
-  <h1>🏭 Home Automation IoT Dashboard</h1>
+  <h1>Home Automation IoT Dashboard</h1>
 
   <div class="right">
     <button class="logout-btn" onclick="logout()">Logout</button>
@@ -31,6 +31,7 @@ if (!localStorage.getItem("token")) {
 </div>
 
 <div id="fireAlert" class="alert hidden">🔥 FIRE DETECTED 🔥</div>
+<div id="smokeAlert" class="alert hidden">💨 SMOKE DETECTED 💨</div>
 <div id="offlineAlert" class="offline hidden">⚠️ PLC OFFLINE</div>
 
 <div class="grid">
@@ -47,6 +48,7 @@ if (!localStorage.getItem("token")) {
   <p>PIR: <span id="pirStatus">-</span></p>
   <p>LDR: <span id="ldrStatus">-</span></p>
   <p>Door: <span id="doorStatus">-</span></p>
+  <p>Smoke: <span id="smokeStatus">-</span></p>
 </div>
 
 <div class="card">
