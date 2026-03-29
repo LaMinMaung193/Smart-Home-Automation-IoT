@@ -1,82 +1,221 @@
-# 🏭 Smart Home Industrial IoT System
+# Smart Home Industrial IoT System
 
-## 📌 Overview
+## Overview
 
-This project presents a **real-time Smart Home Industrial IoT System** integrating embedded systems, MQTT communication, and a web-based dashboard.
+This project implements a real-time Smart Home Industrial IoT system that integrates embedded systems, MQTT communication, and a web-based SCADA-style dashboard.
 
-The system is designed to simulate an **industrial automation environment**, where sensors and actuators are monitored and controlled through a centralized interface.
-
----
-
-## 🚀 Key Features
-
-* 🔌 **ESP32 Gateway Integration**
-
-  * Interfaces with sensors and actuators
-  * Simulates PLC behavior in offline mode
-
-* 📡 **MQTT Communication**
-
-  * Real-time publish/subscribe messaging
-  * Lightweight and scalable architecture
-
-* 🖥️ **Web Dashboard**
-
-  * Live monitoring of system status
-  * Control of devices (light, fan, buzzer)
-  * Mode switching (AUTO / MANUAL)
-
-* ⚠️ **Safety Logic**
-
-  * Control disabled in AUTO mode
-  * Emergency lock when fire is detected
-  * System protection when PLC is offline
+The system simulates an industrial automation environment where sensors and actuators are monitored and controlled through a centralized interface. It includes safety mechanisms, real-time communication, and a scalable architecture suitable for both smart home and small industrial applications.
 
 ---
 
-## 🏗️ System Architecture
+## Key Features
+
+### Embedded Gateway (ESP32)
+
+* Interfaces with sensors (PIR, LDR, smoke, door, temperature)
+* Communicates with PLC via RS485 (Modbus RTU)
+* Publishes system state via MQTT
+* Executes control commands from backend
+* Implements safety logic (fire override, offline protection)
+
+### Real-Time Communication (MQTT)
+
+* Lightweight publish/subscribe architecture
+* Decouples hardware, backend, and frontend
+* Supports real-time monitoring and control
+
+### Web Dashboard (Frontend)
+
+* Live system monitoring (PLC status, sensors, devices)
+* Manual and automatic mode switching
+* Device control (light, fan, buzzer)
+* Fire and smoke alert visualization
+* Real-time charts (temperature and LDR trends)
+
+### Backend Server (Node.js)
+
+* Secure API with JWT authentication
+* Sends control commands via MQTT
+* Acts as a bridge between user and ESP32
+* Handles access control and authorization
+
+### Safety and Reliability
+
+* Fire condition overrides all manual control
+* Smoke detection provides early warning
+* PLC offline detection disables control execution
+* Heartbeat-based communication monitoring
+
+---
+
+## System Architecture
 
 ```
-ESP32 Gateway  →  MQTT Broker  →  Web Dashboard
-        ↑                               ↓
-   Sensors & Actuators          User Control Interface
+                ┌────────────────────┐
+                │   Web Dashboard    │
+                │ (HTML/CSS/JS + MQTT)
+                └─────────┬──────────┘
+                          │
+                          │ MQTT (WebSocket)
+                          ▼
+                ┌────────────────────┐
+                │   MQTT Broker      │
+                │ (HiveMQ Public)    │
+                └─────────┬──────────┘
+                          │
+          ┌───────────────┴───────────────┐
+          │                               │
+          ▼                               ▼
+┌────────────────────┐         ┌────────────────────┐
+│   Backend Server   │         │     ESP32 Gateway  │
+│   (Node.js API)    │         │  (Modbus + MQTT)   │
+└────────────────────┘         └─────────┬──────────┘
+                                         │
+                                         ▼
+                              ┌────────────────────┐
+                              │   PLC / Sensors    │
+                              │  Actuators (I/O)   │
+                              └────────────────────┘
 ```
 
 ---
 
-## 📊 MQTT Topics
+## MQTT Topics
 
-| Topic                    | Description                               |
-| ------------------------ | ----------------------------------------- |
-| `smarthome/status`       | System mode and fire status               |
-| `smarthome/sensors`      | Sensor data (temperature, PIR, LDR, door) |
-| `smarthome/availability` | PLC online/offline status                 |
-| `smarthome/control`      | Control commands from dashboard           |
+### 1. Status Topic
+
+**Topic:** `smarthome/plc1/status`
+**Publisher:** ESP32
+**Subscriber:** Dashboard
+
+**Description:**
+Publishes real-time system state.
+
+**Payload Example:**
+
+```json
+{
+  "plc_online": true,
+  "mode": 1,
+  "fire": 0,
+  "temperature": 26.5,
+  "pir": 1,
+  "ldr": 0,
+  "smoke": 0,
+  "door": 1,
+  "light": 1,
+  "fan": 0,
+  "buzzer": 0
+}
+```
 
 ---
 
-## 🧪 Technologies Used
+### 2. Control Topic
 
-* Embedded Systems: ESP32 / ESP8266 (Arduino)
-* Communication: MQTT (Mosquitto / Public Broker)
-* Frontend: HTML, CSS, JavaScript
-* Protocols: WebSocket (MQTT over Web)
+**Topic:** `smarthome/plc1/control`
+**Publisher:** Backend
+**Subscriber:** ESP32
+
+**Description:**
+Sends control commands to devices.
+
+**Payload Example:**
+
+```json
+{
+  "light": true
+}
+```
+
+**Supported Commands:**
+
+* `mode` → 0 (AUTO), 1 (MANUAL)
+* `light` → true / false
+* `fan` → true / false
+* `buzzer` → true / false
 
 ---
 
-## 🖥️ Dashboard Features
+### 3. Acknowledgment Topic
 
-* Real-time sensor monitoring
-* Device control interface
-* Mode switching (AUTO / MANUAL)
-* Fire alert indicator
-* PLC availability status
+**Topic:** `smarthome/plc1/ack`
+**Publisher:** ESP32
+
+**Description:**
+Confirms command execution.
 
 ---
 
-## ⚙️ How to Run
+## Dashboard Features
 
-### 1. Start Dashboard
+* PLC online/offline monitoring
+* Sensor visualization:
+
+  * PIR (motion)
+  * LDR (light level)
+  * Smoke detection
+  * Door status
+* Device status monitoring:
+
+  * Light
+  * Fan
+  * Buzzer
+* Fire alarm with sound alert
+* Smoke warning indicator
+* Real-time charts:
+
+  * Temperature trend
+  * LDR trend
+
+---
+
+## Backend API
+
+### Base URL
+
+```
+https://smart-home-automation-iot.onrender.com
+```
+
+### Endpoints
+
+#### POST /control
+
+Sends control command (requires authentication)
+
+**Headers:**
+
+```
+Authorization: Bearer <token>
+Content-Type: application/json
+```
+
+**Body Example:**
+
+```json
+{
+  "device": "light",
+  "state": true
+}
+```
+
+---
+
+## Technologies Used
+
+* Embedded Systems: ESP32 (Arduino framework)
+* Communication: MQTT (HiveMQ public broker)
+* Industrial Protocol: Modbus RTU (RS485)
+* Frontend: HTML, CSS, JavaScript, Chart.js
+* Backend: Node.js, Express.js
+* Authentication: JSON Web Token (JWT)
+
+---
+
+## How to Run
+
+### 1. Frontend Dashboard
 
 ```bash
 python3 -m http.server 5500
@@ -90,7 +229,24 @@ http://localhost:5500
 
 ---
 
-### 2. MQTT Broker (Optional Local)
+### 2. Backend Server
+
+```bash
+npm install
+node server.js
+```
+
+---
+
+### 3. ESP32
+
+* Configure WiFi credentials
+* Upload firmware via Arduino IDE
+* Ensure MQTT broker and RS485 connections are correct
+
+---
+
+### 4. MQTT Broker (Optional Local)
 
 ```bash
 mosquitto
@@ -98,38 +254,57 @@ mosquitto
 
 ---
 
-### 3. Test Data (Without ESP32)
+## System Logic
 
-```bash
-mosquitto_pub -h test.mosquitto.org -t smarthome/sensors -m '{"temperature":28,"pir":1,"ldr":200,"door":0}'
-```
+* AUTO mode: PLC controls devices automatically
+* MANUAL mode: User controls devices via dashboard
+* Fire condition:
 
----
+  * Overrides all control
+  * Activates buzzer
+  * Turns off other devices
+* Smoke condition:
 
-## 📷 Demo
+  * Early warning indicator
+  * Can be extended to trigger fire logic
+* PLC offline:
 
-*(Add your dashboard screenshot here)*
-
----
-
-## 🎯 Future Improvements
-
-* 📈 Real-time data visualization (charts)
-* 🔐 User authentication system
-* ☁️ Cloud deployment
-* 🤖 AI-based predictive maintenance
-* 📊 Data logging & analytics backend
+  * Control commands are ignored
+  * Dashboard shows warning
 
 ---
 
-## 👨‍💻 Author
+## Security Notes
 
-**La Min Maung**
+* Public MQTT broker is used (not secure for production)
+* Backend uses JWT authentication for protected routes
+* Recommended improvements:
+
+  * Use private MQTT broker
+  * Enable TLS encryption
+  * Add role-based access control
+
+---
+
+## Future Improvements
+
+* Persistent data logging (database integration)
+* Mobile application integration
+* Push notifications (fire/smoke alerts)
+* AI-based anomaly detection
+* Multi-device and multi-room scalability
+* Cloud IoT integration (AWS IoT, Azure IoT)
+
+---
+
+## Author & Contributor
+
+La Min Maung
 Electrical Engineering (Mechatronics) Student
 KMITL, Thailand
 
 ---
 
-## 💡 Project Goal
+## Project Goal
 
-To develop a **scalable, real-time industrial IoT system** combining embedded systems, communication protocols, and modern web technologies — suitable for smart home and SME industrial applications.
+To design and implement a scalable, real-time industrial IoT system that combines embedded hardware, communication protocols, and modern web technologies for monitoring and control applications.
