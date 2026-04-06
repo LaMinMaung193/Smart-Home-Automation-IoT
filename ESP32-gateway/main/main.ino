@@ -46,7 +46,7 @@ uint8_t hb_fail_count = 0;
 unsigned long lastPublish = 0;
 unsigned long lastCommandTime = 0;
 
-// 🔥 Fire trigger lock
+// Fire trigger lock
 bool fire_applied = false;
 
 // ================= DS18B20 =================
@@ -77,7 +77,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
 
   lastCommandTime = millis();
 
-  // 🔥 FIRE PRIORITY
+  // FIRE PRIORITY
   if (fire_flag == 1) {
     Serial.println("Fire active - commands blocked");
     return;
@@ -233,6 +233,7 @@ void readPLC() {
 }
 
 // ================= SAFETY =================
+
 void safetyCheck() {
 
   if (fire_flag == 1 && plc_online) {
@@ -242,7 +243,8 @@ void safetyCheck() {
       node.writeSingleCoil(2, 1);
       fire_applied = true;
     }
-  } else {
+  } 
+  else {
     fire_applied = false;
   }
 }
