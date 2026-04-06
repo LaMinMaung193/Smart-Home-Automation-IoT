@@ -136,8 +136,4 @@ ESP32 → ack → (optional monitoring)
 
 ---
 
-## 🔐 Future Improvements
 
-* Add authentication (username/password)
-* Use private broker (e.g., Mosquitto, AWS IoT)
-* Enable TLS encryption
