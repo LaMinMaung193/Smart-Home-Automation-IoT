@@ -53,7 +53,7 @@ The system simulates an industrial automation environment where sensors and actu
 ```
                 ┌────────────────────┐
                 │   Web Dashboard    │
-                │ (HTML/CSS/JS + MQTT)
+                │(HTML/CSS/JS + MQTT)|   
                 └─────────┬──────────┘
                           │
                           │ MQTT (WebSocket)
@@ -303,8 +303,25 @@ La Min Maung
 Electrical Engineering (Mechatronics) Student
 KMITL, Thailand
 
+## Other Contributor
+
+Aung Moe Hein, Saung Nadi Hlaing
+Electrical Engineering (Mechatronics) Student
+KMITL, Thailand
+
 ---
 
 ## Project Goal
 
 To design and implement a scalable, real-time industrial IoT system that combines embedded hardware, communication protocols, and modern web technologies for monitoring and control applications.
+
+---
+
+## License
+This project is licensed under the MIT License.
+
+This project was developed as part of coursework at KMITL. Any reuse of this work should properly credit the original authors.
+
+---
+
+© 2026 La Min Maung. All rights reserved.
